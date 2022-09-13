@@ -20,6 +20,7 @@ import lombok.Getter;
 import platform.qa.entities.Ceph;
 import platform.qa.entities.Configuration;
 import platform.qa.entities.Db;
+import platform.qa.entities.Redis;
 import platform.qa.entities.RegistryConfiguration;
 import platform.qa.entities.Service;
 import platform.qa.entities.User;
@@ -34,6 +35,7 @@ import platform.qa.utils.OpenshiftServiceProvider;
  * Central services defined in {@link RegistryConfig}
  */
 public final class RegistryConfig {
+    private final String namespace;
     private final RegistryConfiguration configuration;
     @Getter
     private final OkdClient ocClient;
@@ -88,6 +90,8 @@ public final class RegistryConfig {
     private Ceph fileLowcodeCeph;
     private Ceph excerptCeph;
 
+    private Redis redis;
+
     public RegistryConfig(Configuration configuration,
                           String namespace,
                           Service ocService,
@@ -96,6 +100,7 @@ public final class RegistryConfig {
         this.configuration = configuration.getRegistryConfiguration();
         this.keycloakClient = keycloakClient;
         this.ceph = ceph;
+        this.namespace = namespace;
         oc = ocService;
 
         ocClient = new OkdClient(ocService, namespace);
@@ -528,5 +533,15 @@ public final class RegistryConfig {
         jenkins = OpenshiftServiceProvider.getService(ocClient, configuration.getJenkins(),
                 ocClient.getCredentials(configuration.getJenkins().getSecret()));
         return jenkins;
+    }
+
+    public Redis getRedis(){
+        if (redis != null) {
+            return redis;
+        }
+        redis = OpenshiftServiceProvider.getRedisService(ocClient, configuration.getRedis(),
+                ocClient.getCredentials(configuration.getRedis().getSecret()));
+        redis.setUrl(String.format(configuration.getRedis().getRoute(), this.namespace));
+        return redis;
     }
 }

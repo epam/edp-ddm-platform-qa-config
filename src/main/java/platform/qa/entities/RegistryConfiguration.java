@@ -50,5 +50,6 @@ public class RegistryConfiguration {
     private ServiceConfiguration citusReplica;
     private ServiceConfiguration citusRoles;
     private ServiceConfiguration processWebserviceGateway;
+    private ServiceConfiguration redis;
     private CephBuckets ceph;
 }
