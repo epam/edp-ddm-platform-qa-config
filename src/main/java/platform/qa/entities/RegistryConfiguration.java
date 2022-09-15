@@ -34,6 +34,7 @@ public class RegistryConfiguration {
     private ServiceConfiguration userSettings;
     private ServiceConfiguration formManagementProvider;
     private ServiceConfiguration formManagementModeler;
+    private ServiceConfiguration formSchemaProvider;
     private ServiceConfiguration excerpt;
     private ServiceConfiguration userTaskManagement;
     private ServiceConfiguration userProcessManagement;
@@ -50,6 +51,6 @@ public class RegistryConfiguration {
     private ServiceConfiguration citusReplica;
     private ServiceConfiguration citusRoles;
     private ServiceConfiguration processWebserviceGateway;
-    private ServiceConfiguration redis;
+    private RedisConfiguration redis;
     private CephBuckets ceph;
 }

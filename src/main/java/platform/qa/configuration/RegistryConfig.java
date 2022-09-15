@@ -71,6 +71,7 @@ public final class RegistryConfig {
     private Service bpms;
     private Service formManagementProvider;
     private Service formManagementModeler;
+    private Service formSchemaProvider;
     private Service excerpt;
     private Service userTaskManagement;
     private Service userProcessManagement;
@@ -535,13 +536,24 @@ public final class RegistryConfig {
         return jenkins;
     }
 
+    public Service getFormSchemaProvider(String userName){
+        if (formSchemaProvider != null) {
+            formSchemaProvider.setUser(registryUserProvider.getUserService().refreshUserToken(registryUserProvider.get(userName)));
+            return formSchemaProvider;
+        }
+
+        formSchemaProvider = OpenshiftServiceProvider.getService(ocClient,
+                configuration.getFormSchemaProvider(), registryUserProvider.get(userName));
+        return formSchemaProvider;
+    }
+
     public Redis getRedis(){
         if (redis != null) {
             return redis;
         }
-        redis = OpenshiftServiceProvider.getRedisService(ocClient, configuration.getRedis(),
+        redis = OpenshiftServiceProvider.getRedisService(configuration.getRedis(),
                 ocClient.getCredentialsWithoutLogin(configuration.getRedis().getSecret()));
-        redis.setUrl(String.format(configuration.getRedis().getRoute(), this.namespace));
+        redis.setUrl(String.format(configuration.getRedis().getUrl(), this.namespace));
         return redis;
     }
 }

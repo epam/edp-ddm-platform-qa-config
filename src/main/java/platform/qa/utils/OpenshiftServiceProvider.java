@@ -24,6 +24,7 @@ import platform.qa.configuration.MasterConfig;
 import platform.qa.entities.Ceph;
 import platform.qa.entities.Db;
 import platform.qa.entities.Redis;
+import platform.qa.entities.RedisConfiguration;
 import platform.qa.entities.Service;
 import platform.qa.entities.ServiceConfiguration;
 import platform.qa.entities.User;
@@ -153,10 +154,8 @@ public final class OpenshiftServiceProvider {
                 .build();
     }
 
-    public static Redis getRedisService(OkdClient ocClient, ServiceConfiguration configuration, User user){
-        Service service = getService(ocClient, configuration, user);
-
-        return new Redis(service.getUrl(), service.getPassword());
+    public static Redis getRedisService(RedisConfiguration configuration, User user){
+        return new Redis(configuration.getUrl(), user.getPassword());
     }
 
     private static boolean isRoutePresent(OkdClient okdClient, String route) {
