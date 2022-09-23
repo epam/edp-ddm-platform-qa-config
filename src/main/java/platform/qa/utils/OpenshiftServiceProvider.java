@@ -34,6 +34,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import com.sun.istack.Nullable;
 
@@ -41,8 +42,10 @@ public final class OpenshiftServiceProvider {
 
     /**
      * Create {@link Service} with route by provided configuration.
-     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from k8s routes
-     * @param ocService {@link Service} for k8s connection
+     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from
+     * k8s routes
+     *
+     * @param ocService     {@link Service} for k8s connection
      * @param configuration {@link ServiceConfiguration} for service that was provided
      * @return {@link Service} with route without user
      */
@@ -54,8 +57,10 @@ public final class OpenshiftServiceProvider {
 
     /**
      * Create {@link Service} with route by provided configuration.
-     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from k8s routes
-     * @param ocClient {@link OkdClient} client for k8s
+     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from
+     * k8s routes
+     *
+     * @param ocClient      {@link OkdClient} client for k8s
      * @param configuration {@link ServiceConfiguration} for service that was provided
      * @return {@link Service} with route without user
      */
@@ -72,10 +77,12 @@ public final class OpenshiftServiceProvider {
 
     /**
      * Create {@link Service} with route and user by provided configuration.
-     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from k8s routes
-     * @param ocClient {@link OkdClient} client for k8s
+     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from
+     * k8s routes
+     *
+     * @param ocClient      {@link OkdClient} client for k8s
      * @param configuration {@link ServiceConfiguration} for service that was provided
-     * @param user {@link User} user for service
+     * @param user          {@link User} user for service
      * @return {@link Service} with route and user
      */
     @SneakyThrows
@@ -91,8 +98,10 @@ public final class OpenshiftServiceProvider {
 
     /**
      * Initialize {@link Db} object for connection
-     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from k8s routes
-     * @param ocClient {@link OkdClient} client for k8s
+     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from
+     * k8s routes
+     *
+     * @param ocClient      {@link OkdClient} client for k8s
      * @param configuration {@link ServiceConfiguration} for service that was provided
      * @return {@link Db} with user and url
      */
@@ -110,9 +119,10 @@ public final class OpenshiftServiceProvider {
 
     /**
      * Initialize {@link User} with username and password by secret name
+     *
      * @param ocClient {@link OkdClient} client for k8s
-     * @param key key for secret value
-     * @param secret secret name
+     * @param key      key for secret value
+     * @param secret   secret name
      * @return {@link User} with username and password
      */
     public static User getUserSecretsBySecretNameAndKey(OkdClient ocClient, String secret, String key) {
@@ -124,9 +134,10 @@ public final class OpenshiftServiceProvider {
 
     /**
      * Provides decoded password by secret name and key
-     * @param ocClient {@link OkdClient} client for k8s
+     *
+     * @param ocClient   {@link OkdClient} client for k8s
      * @param secretName secret name
-     * @param key key for secret value
+     * @param key        key for secret value
      * @return decoded password from secret
      */
     public static String getPasswordFromSecretByKey(OkdClient ocClient, String secretName, String key) {
@@ -136,16 +147,18 @@ public final class OpenshiftServiceProvider {
 
     /**
      * Initialize {@link Ceph} service with bucket name, secret keys and host
-     * @param ocClient {@link OkdClient} client for k8s
+     *
+     * @param ocClient   {@link OkdClient} client for k8s
      * @param secretName secret name
-     * @param cephUrl url for ceph if port forward
+     * @param cephUrl    url for ceph if port forward
      * @return {@link Ceph} service with bucket name, secret keys and host
      */
     public static Ceph getCephService(OkdClient ocClient, String secretName, @Nullable String cephUrl) {
         Map<String, String> secret = ocClient.getSecretsByName(secretName);
         Map<String, String> configurationMap = ocClient.getConfigurationMap(secretName);
 
-        ServiceConfiguration cephConfiguration = MasterConfig.getInstance().getConfiguration().getCentralConfiguration().getCeph();
+        ServiceConfiguration cephConfiguration =
+                MasterConfig.getInstance().getConfiguration().getCentralConfiguration().getCeph();
 
         return Ceph.builder()
                 .bucketName(configurationMap.get("BUCKET_NAME"))
@@ -158,13 +171,14 @@ public final class OpenshiftServiceProvider {
     @SneakyThrows
     public static Redis getRedisService(OkdClient ocClient, ServiceConfiguration configuration, User user) {
         var podList = ocClient.getOsClient().pods().list();
-        var podToForward = podList
-                .getItems()
+        var podToForward = podList.getItems()
                 .stream()
-                .filter(pod -> pod.getMetadata().getGenerateName().contains(configuration.getPodLabel()))
-                .sorted(Comparator.comparing(current -> current.getMetadata().getGenerateName()))
+                .filter(pod -> Objects.nonNull(pod.getMetadata()))
+                .filter(pod -> Objects.nonNull(pod.getMetadata().getName()))
+                .filter(pod -> pod.getMetadata().getName().contains(configuration.getPodLabel()))
+                .sorted(Comparator.comparing(current -> current.getMetadata().getName()))
                 .limit(1)
-                .map(pod -> pod.getMetadata().getGenerateName())
+                .map(pod -> pod.getMetadata().getName())
                 .findFirst()
                 .orElse(null);
         if (configuration.isPortForwarding()) {
@@ -172,14 +186,14 @@ public final class OpenshiftServiceProvider {
             ocClient.getOsClient().pods().withName(podToForward).portForward(configuration.getDefaultPort(), port);
             return new Redis("http://localhost:" + port + "/", user.getPassword());
         }
-        return  null;
+        return null;
     }
 
     private static boolean isRoutePresent(OkdClient okdClient, String route) {
         return getRouteValue(okdClient, route) != null;
     }
 
-    private static String getRoute(OkdClient ocClient, String route){
+    private static String getRoute(OkdClient ocClient, String route) {
         var result = getRouteValue(ocClient, route);
 
         assertThat(result).as(String.format("Route %s has not been found", route)).isNotNull();
@@ -188,7 +202,8 @@ public final class OpenshiftServiceProvider {
 
     private static String getRouteValue(OkdClient ocClient, String route) {
         HashMap<String, String> routes = ocClient.getOkdRoutes();
-        List<String> matchedRoutes =  routes.keySet().stream().filter(r->r.contains(route)).collect(Collectors.toList());
+        List<String> matchedRoutes =
+                routes.keySet().stream().filter(r -> r.contains(route)).collect(Collectors.toList());
         return matchedRoutes.size() == 1 ? routes.get(matchedRoutes.get(0)) : routes.get(route);
     }
 }

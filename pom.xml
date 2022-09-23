@@ -6,7 +6,7 @@
 
     <groupId>platform.qa</groupId>
     <artifactId>platform-qa-config</artifactId>
-    <version>1.6.0.43</version>
+    <version>1.6.0.44</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
