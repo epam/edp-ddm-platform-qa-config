@@ -20,9 +20,9 @@
         <jackson.version>2.13.1</jackson.version>
         <guava.version>31.0.1-jre</guava.version>
 
-        <keycloak-qa-client.version>1.6.0.57</keycloak-qa-client.version>
-        <openshift-qa-client.version>1.6.0.57</openshift-qa-client.version>
-        <global-qa-entities.version>1.6.0.9</global-qa-entities.version>
+        <keycloak-qa-client.version>1.6.0.58</keycloak-qa-client.version>
+        <openshift-qa-client.version>1.6.0.58</openshift-qa-client.version>
+        <global-qa-entities.version>1.6.0.10</global-qa-entities.version>
     </properties>
 
     <dependencies>

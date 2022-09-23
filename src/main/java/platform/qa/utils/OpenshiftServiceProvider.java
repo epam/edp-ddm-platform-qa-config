@@ -24,12 +24,13 @@ import platform.qa.configuration.MasterConfig;
 import platform.qa.entities.Ceph;
 import platform.qa.entities.Db;
 import platform.qa.entities.Redis;
-import platform.qa.entities.RedisConfiguration;
 import platform.qa.entities.Service;
 import platform.qa.entities.ServiceConfiguration;
 import platform.qa.entities.User;
+import platform.qa.extension.SocketAnalyzer;
 import platform.qa.oc.OkdClient;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,8 +155,24 @@ public final class OpenshiftServiceProvider {
                 .build();
     }
 
-    public static Redis getRedisService(RedisConfiguration configuration, User user){
-        return new Redis(configuration.getUrl(), user.getPassword());
+    @SneakyThrows
+    public static Redis getRedisService(OkdClient ocClient, ServiceConfiguration configuration, User user) {
+        var podList = ocClient.getOsClient().pods().list();
+        var podToForward = podList
+                .getItems()
+                .stream()
+                .filter(pod -> pod.getMetadata().getGenerateName().contains(configuration.getPodLabel()))
+                .sorted(Comparator.comparing(current -> current.getMetadata().getGenerateName()))
+                .limit(1)
+                .map(pod -> pod.getMetadata().getGenerateName())
+                .findFirst()
+                .orElse(null);
+        if (configuration.isPortForwarding()) {
+            int port = new SocketAnalyzer().getAvailablePort();
+            ocClient.getOsClient().pods().withName(podToForward).portForward(configuration.getDefaultPort(), port);
+            return new Redis("http://localhost:" + port + "/", user.getPassword());
+        }
+        return  null;
     }
 
     private static boolean isRoutePresent(OkdClient okdClient, String route) {

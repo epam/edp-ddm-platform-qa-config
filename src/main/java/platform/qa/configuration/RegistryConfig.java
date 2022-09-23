@@ -551,9 +551,8 @@ public final class RegistryConfig {
         if (redis != null) {
             return redis;
         }
-        redis = OpenshiftServiceProvider.getRedisService(configuration.getRedis(),
+        redis = OpenshiftServiceProvider.getRedisService(ocClient, configuration.getRedis(),
                 ocClient.getCredentialsWithoutLogin(configuration.getRedis().getSecret()));
-        redis.setUrl(String.format(configuration.getRedis().getUrl(), this.namespace));
         return redis;
     }
 }
