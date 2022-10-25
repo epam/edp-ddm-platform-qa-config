@@ -37,4 +37,5 @@ public class CentralConfiguration {
     private ServiceConfiguration nexus;
     private ServiceConfiguration controlPlane;
     private ServiceConfiguration vault;
+    private ServiceConfiguration email;
 }

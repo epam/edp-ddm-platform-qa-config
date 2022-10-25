@@ -50,6 +50,7 @@ public final class CentralConfig {
     private Service wiremock;
     private Service controlPlane;
     private Service nexus;
+    private Service email;
 
     private KeycloakClient keycloakClient;
     @Getter
@@ -185,6 +186,15 @@ public final class CentralConfig {
 
         nexus = getService(configuration.getNexus());
         return nexus;
+    }
+
+    public Service getEmail() {
+        if (email != null) {
+            return email;
+        }
+
+        email = getService(configuration.getEmail());
+        return email;
     }
 
     public KeycloakClient getKeycloakClient() {
