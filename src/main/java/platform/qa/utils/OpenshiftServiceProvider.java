@@ -106,7 +106,7 @@ public final class OpenshiftServiceProvider {
      * @return {@link Db} with user and url
      */
     public static Db getDbService(OkdClient ocClient, ServiceConfiguration configuration) {
-        Service citusService = getService(ocClient, configuration);
+        Service citusService = getDbPodService(ocClient, configuration);
         citusService.setUrl(citusService.getUrl().replace("http", "jdbc:postgresql"));
         var credentials = ocClient.getCredentials(configuration.getSecret());
 
@@ -167,6 +167,33 @@ public final class OpenshiftServiceProvider {
                 .host(cephConfiguration.isPortForwarding() ? cephUrl : configurationMap.get("BUCKET_HOST"))
                 .build();
     }
+
+    /**
+     * Create {@link Service} with route by provided configuration.
+     * If {@link ServiceConfiguration#isPortForwarding()} true - forward ports for service, false - get route from k8s routes
+     * @param ocClient {@link OkdClient} client for k8s
+     * @param configuration {@link ServiceConfiguration} for service that was provided
+     * @return {@link Service} with route without user
+     */
+    @SneakyThrows
+    public static Service getDbPodService(OkdClient ocClient, ServiceConfiguration configuration) {
+        var databasePods = ocClient
+                .getOsClient()
+                .pods()
+                .withLabel(configuration.getPodLabel())
+                .list()
+                .getItems();
+        var podName = databasePods
+                .stream()
+                .filter(pod -> pod.getMetadata().getName().contains(configuration.getRoute()))
+                .map(pod -> pod.getMetadata().getName())
+                .findFirst()
+                .orElseThrow();
+        int port = new SocketAnalyzer().getAvailablePort();
+        ocClient.getOsClient().pods().withName(podName).portForward(configuration.getDefaultPort(), port);
+        return new Service("http://localhost:" + port + "/");
+    }
+
 
     @SneakyThrows
     public static Redis getRedisService(OkdClient ocClient, ServiceConfiguration configuration, User user) {
