@@ -53,4 +53,5 @@ public class RegistryConfiguration {
     private ServiceConfiguration processWebserviceGateway;
     private ServiceConfiguration redis;
     private CephBuckets ceph;
+    private ServiceConfiguration notificationService;
 }

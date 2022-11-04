@@ -85,6 +85,7 @@ public final class RegistryConfig {
     private Service redashAdmin;
     private Service gerrit;
     private Service jenkins;
+    private Service notificationService;
 
     private Ceph signatureCeph;
     private Ceph fileDataCeph;
@@ -554,5 +555,14 @@ public final class RegistryConfig {
         redis = OpenshiftServiceProvider.getRedisService(ocClient, configuration.getRedis(),
                 ocClient.getCredentialsWithoutLogin(configuration.getRedis().getSecret()));
         return redis;
+    }
+
+    public Service getNotificationService() {
+        if (notificationService != null) {
+            return notificationService;
+        }
+
+        notificationService = OpenshiftServiceProvider.getService(ocClient, configuration.getNotificationService());
+        return notificationService;
     }
 }
