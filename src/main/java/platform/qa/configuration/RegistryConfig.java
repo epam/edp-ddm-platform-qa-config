@@ -524,6 +524,8 @@ public final class RegistryConfig {
 
         gerrit = OpenshiftServiceProvider.getService(ocClient, configuration.getGerrit(),
                 ocClient.getCredentials(configuration.getGerrit().getSecret()));
+
+        gerrit.setUrl(gerrit.getUrl() + "/");
         return gerrit;
     }
 
