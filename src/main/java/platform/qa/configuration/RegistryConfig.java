@@ -525,7 +525,8 @@ public final class RegistryConfig {
         gerrit = OpenshiftServiceProvider.getService(ocClient, configuration.getGerrit(),
                 ocClient.getCredentials(configuration.getGerrit().getSecret()));
 
-        gerrit.setUrl(gerrit.getUrl() + "/");
+        if (!gerrit.getUrl().endsWith("/"))
+            gerrit.setUrl(gerrit.getUrl() + "/");
         return gerrit;
     }
 
@@ -539,7 +540,7 @@ public final class RegistryConfig {
         return jenkins;
     }
 
-    public Service getFormSchemaProvider(String userName){
+    public Service getFormSchemaProvider(String userName) {
         if (formSchemaProvider != null) {
             formSchemaProvider.setUser(registryUserProvider.getUserService().refreshUserToken(registryUserProvider.get(userName)));
             return formSchemaProvider;
@@ -550,7 +551,7 @@ public final class RegistryConfig {
         return formSchemaProvider;
     }
 
-    public Redis getRedis(){
+    public Redis getRedis() {
         if (redis != null) {
             return redis;
         }
