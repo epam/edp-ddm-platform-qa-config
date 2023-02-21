@@ -33,42 +33,51 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  Load initial configuration for Central and Registry services.
- *  Currently, supports only {@link CentralConfiguration} and {@link RegistryConfiguration}.
- *  Example of usage :
- *  <p>
- *      {@code
- *          RegistryConfiguration regConfig = MasterConfig.getInstance().getRegistryConfiguration("example-namespace");
- *          GlobalConfiguration globalConfig = MasterConfig.getInstance().getGlobalConfiguration();
- *      }
- *  </p>
+ * Load initial configuration for Central and Registry services.
+ * Currently, supports only {@link CentralConfiguration} and {@link RegistryConfiguration}.
+ * Example of usage :
+ * <p>
+ * {@code
+ * RegistryConfiguration regConfig = MasterConfig.getInstance().getRegistryConfiguration("example-namespace");
+ * GlobalConfiguration globalConfig = MasterConfig.getInstance().getGlobalConfiguration();
+ * }
+ * </p>
  */
 public final class MasterConfig {
     private static MasterConfig instance;
 
-    @Getter private final Configuration configuration;
+    @Getter
+    private final Configuration configuration;
 
     private final Service oc;
     private final String defaultNamespace;
     private final KeycloakClient keycloakClient;
 
-    @Getter private final CentralConfig centralConfig;
-    @Getter private final String cluster;
-    @Getter private final String baseDomain;
+    @Getter
+    private final CentralConfig centralConfig;
+    @Getter
+    private final String cluster;
+    @Getter
+    private final String baseDomain;
     private final Map<String, RegistryConfig> registryConfigs = new HashMap<>();
 
     private MasterConfig() {
         configuration = ConfigurationUtils.uploadConfiguration("properties/platform.json");
         var properties = ConfigurationUtils.uploadPropertiesConfiguration("properties/platform.properties");
 
-        defaultNamespace = System.getProperty("namespace") != null ? System.getProperty("namespace") : properties.getProperty("namespace");
+        defaultNamespace = System.getProperty("namespace") != null ? System.getProperty("namespace") :
+                properties.getProperty("namespace");
 
         var ocUser = new User(
-                System.getProperty("username") != null ? System.getProperty("username") : properties.getProperty("username"),
-                System.getProperty("password") != null ? System.getProperty("password") : Base64.decodeToString(properties.getProperty("password"))
+                System.getProperty("username") != null ? System.getProperty("username") : properties.getProperty(
+                        "username"),
+                System.getProperty("password") != null ? System.getProperty("password") :
+                        Base64.decodeToString(properties.getProperty("password"))
         );
-        cluster = System.getProperty("cluster") != null ? System.getProperty("cluster") : properties.getProperty("cluster");
-        baseDomain = System.getProperty("baseDomain") != null ? System.getProperty("baseDomain") : properties.getProperty("baseDomain");
+        cluster = System.getProperty("cluster") != null ? System.getProperty("cluster") : properties.getProperty(
+                "cluster");
+        baseDomain = System.getProperty("baseDomain") != null ? System.getProperty("baseDomain") :
+                properties.getProperty("baseDomain");
         var ocUrl = String.format(
                 System.getProperty("url") != null ? System.getProperty("url") : properties.getProperty("url"),
                 cluster, baseDomain
@@ -92,7 +101,8 @@ public final class MasterConfig {
 
     public RegistryConfig getRegistryConfig() {
         if (!registryConfigs.containsKey(defaultNamespace)) {
-            registryConfigs.put(defaultNamespace, new RegistryConfig(configuration, defaultNamespace, oc, keycloakClient, centralConfig.getCeph()));
+            registryConfigs.put(defaultNamespace, new RegistryConfig(configuration, defaultNamespace, oc,
+                    keycloakClient, centralConfig.getCeph()));
         }
 
         return registryConfigs.get(defaultNamespace);
@@ -101,13 +111,15 @@ public final class MasterConfig {
     @SneakyThrows(ConfigurationExceptions.MissingNamespaceInConfiguration.class)
     public RegistryConfig getRegistryConfig(String namespace) {
         if (!registryConfigs.containsKey(namespace)) {
-            throw new ConfigurationExceptions.MissingNamespaceInConfiguration("Namespace " + namespace + " is missing for registry configuration!");
+            throw new ConfigurationExceptions.MissingNamespaceInConfiguration("Namespace " + namespace + " is missing"
+                    + " for registry configuration!");
         }
         return registryConfigs.get(namespace);
     }
 
     /**
      * Provides instance of {@link MasterConfig}
+     *
      * @return {@link MasterConfig}
      */
     public static MasterConfig getInstance() {

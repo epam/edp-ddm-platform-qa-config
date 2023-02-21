@@ -20,6 +20,7 @@ import static org.awaitility.Awaitility.await;
 
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import lombok.Getter;
+import platform.qa.configuration.MasterConfig;
 import platform.qa.entities.Service;
 import platform.qa.entities.User;
 import platform.qa.keycloak.KeycloakClient;
@@ -46,7 +47,9 @@ public class UserService {
     public User initUser(User user, String loginName) {
         if (user == null || !user.getLogin().equals(loginName)) {
             user = testUsers.get(loginName);
-            keycloakClient.createUser(user);
+            String namespace =
+                    MasterConfig.getInstance().getRegistryConfig().getOcClient().getOsClient().getNamespace();
+            keycloakClient.createUser(user, namespace);
         }
         return user;
     }
