@@ -86,8 +86,6 @@ public final class RegistryConfig {
     private Service gerrit;
     private Service jenkins;
     private Service notificationService;
-
-    private Ceph signatureCeph;
     private Ceph fileDataCeph;
     private Ceph fileLowcodeCeph;
     private Ceph excerptCeph;
@@ -107,16 +105,6 @@ public final class RegistryConfig {
 
         ocClient = new OkdClient(ocService, namespace);
         registryUserProvider = new RegistryUserProvider(namespace, keycloakClient, "properties/users.json");
-    }
-
-    public Ceph getSignatureCeph() {
-        if (signatureCeph != null) {
-            return signatureCeph;
-        }
-
-        signatureCeph = OpenshiftServiceProvider.getCephService(ocClient,
-                configuration.getCeph().getSignatureBucket(), ceph.getUrl());
-        return signatureCeph;
     }
 
     public Ceph getFileDataCeph() {
