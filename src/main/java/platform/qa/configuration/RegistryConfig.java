@@ -317,7 +317,15 @@ public final class RegistryConfig {
 
         dataFactorySoap = OpenshiftServiceProvider.getService(ocClient, configuration.getDataFactorySoap(),
                 registryUserProvider.get(userName));
-        dataFactorySoap.setUrl(dataFactorySoap.getUrl() + "/ws?wsdl");
+
+        String dataFactorySoapUrl = dataFactorySoap.getUrl();
+
+        if (!dataFactorySoapUrl.endsWith("/")) {
+            dataFactorySoapUrl += "/";
+        }
+
+        dataFactorySoap.setUrl(dataFactorySoapUrl + "ws?wsdl");
+
         return dataFactorySoap;
     }
 
@@ -385,7 +393,20 @@ public final class RegistryConfig {
 
         processWebserviceGateway = OpenshiftServiceProvider.getService(ocClient,
                 configuration.getProcessWebserviceGateway(), registryUserProvider.get(userName));
-        processWebserviceGateway.setUrl(processWebserviceGateway.getUrl().concat(":443/ws"));
+        processWebserviceGateway.setUrl(processWebserviceGateway.getUrl());
+
+        return processWebserviceGateway;
+    }
+
+    public Service getProcessWebserviceGatewayTrembita(String userName) {
+        if (processWebserviceGateway != null) {
+            processWebserviceGateway.setUser(registryUserProvider.getUserService().refreshUserToken(registryUserProvider.get(userName)));
+            return processWebserviceGateway;
+        }
+
+        processWebserviceGateway = OpenshiftServiceProvider.getService(ocClient,
+                configuration.getProcessWebserviceGateway(), registryUserProvider.get(userName));
+        processWebserviceGateway.setUrl(processWebserviceGateway.getUrl());
 
         return processWebserviceGateway;
     }
