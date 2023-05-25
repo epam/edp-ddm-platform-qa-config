@@ -502,7 +502,7 @@ public final class RegistryConfig {
         }
 
         redashViewer = OpenshiftServiceProvider.getService(ocClient, configuration.getRedashViewer());
-        redashViewer.setUrl(redashViewer.getUrl() + "/api");
+        redashViewer.setUrl(redashViewer.getUrl() + "/reports/api");
         redashViewer.setToken(OpenshiftServiceProvider.getPasswordFromSecretByKey(
                 ocClient,
                 configuration.getRedashViewer().getSecret(),
@@ -517,7 +517,7 @@ public final class RegistryConfig {
         }
 
         redashAdmin = OpenshiftServiceProvider.getService(ocClient, configuration.getRedashAdmin());
-        redashAdmin.setUrl(redashAdmin.getUrl() + "/api");
+        redashAdmin.setUrl(redashAdmin.getUrl() + "/reports/api");
         redashAdmin.setToken(OpenshiftServiceProvider.getPasswordFromSecretByKey(
                 ocClient,
                 configuration.getRedashAdmin().getSecret(),
