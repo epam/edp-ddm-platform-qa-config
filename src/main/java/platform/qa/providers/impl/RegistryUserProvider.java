@@ -48,6 +48,13 @@ public class RegistryUserProvider implements AtomicOperation<User> {
         });
     }
 
+    public User get(String name, String namespace) {
+        return user.updateAndGet((user) -> {
+            User currentUser = userService.initUser(user, name, namespace);
+            return userService.refreshUserToken(currentUser);
+        });
+    }
+
     private Map<String, User> getRegistryUsersFromJson(String path, String namespace) {
         Map<String, User> users = ConfigurationUtils.uploadUserConfiguration(path, User.class);
         users.values().forEach(user -> {

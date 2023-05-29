@@ -54,6 +54,14 @@ public class UserService {
         return user;
     }
 
+    public User initUser(User user, String loginName, String namespace) {
+        if (user == null || !user.getLogin().equals(loginName)) {
+            user = testUsers.get(loginName);
+            keycloakClient.createUser(user, namespace);
+        }
+        return user;
+    }
+
     public User refreshUserToken(User user) {
         if (isTokenExpired(user)) {
             user.setToken(keycloakClient.getAccessToken(user.getRealm(), user));
