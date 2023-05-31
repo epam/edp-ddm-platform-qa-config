@@ -561,11 +561,18 @@ public final class RegistryConfig {
     }
 
     public Redis getRedis() {
-        if (redis != null) {
+        return getRedis(false);
+    }
+
+    public Redis getRedis(boolean isReinit) {
+        if (redis != null && !isReinit) {
             return redis;
         }
-        redis = OpenshiftServiceProvider.getRedisService(ocClient, configuration.getRedis(),
-                ocClient.getCredentialsWithoutLogin(configuration.getRedis().getSecret()));
+
+        redis = OpenshiftServiceProvider.getRedisService(ocClient,
+                configuration.getRedis(),
+                ocClient.getCredentialsWithoutLogin(configuration.getRedis().getSecret())
+        );
         return redis;
     }
 
