@@ -23,8 +23,10 @@ import platform.qa.providers.api.AtomicOperation;
 import platform.qa.services.UserService;
 import platform.qa.utils.ConfigurationUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Provide registry users data by username
@@ -61,7 +63,21 @@ public class RegistryUserProvider implements AtomicOperation<User> {
             user.setPassword(user.getLogin());
             if (user.getRealm().startsWith("-"))
                 user.setRealm(namespace + user.getRealm());
+
+            updateRolesForAdminPortal(namespace, user);
         });
         return users;
+    }
+
+    private void updateRolesForAdminPortal(String namespace, User user) {
+        List<String> realmRoles = user.getRealmRoles();
+
+        if ("admin-portal".equals(user.getClientId())) {
+            List<String> rolesUpdate = realmRoles.stream()
+                    .map(role -> "cp-registry-admin".equals(role) ? "cp-registry-admin-".concat(namespace) : role)
+                    .collect(Collectors.toList());
+
+            user.setRealmRoles(rolesUpdate);
+        }
     }
 }
