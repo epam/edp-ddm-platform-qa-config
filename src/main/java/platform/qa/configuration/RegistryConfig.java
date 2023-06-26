@@ -66,6 +66,7 @@ public final class RegistryConfig {
     private Service dataFactory;
     private Service dataFactoryExternalPlatform;
     private Service dataFactoryExternalSystem;
+    private Service dataFactoryPublicApiSystem;
     private Service digitalSignatureOps;
     private Service userSettings;
     private Service bpms;
@@ -307,6 +308,16 @@ public final class RegistryConfig {
         dataFactoryExternalSystem = OpenshiftServiceProvider.getService(ocClient,
                 configuration.getDataFactoryExternalSystem());
         return dataFactoryExternalSystem;
+    }
+
+    public Service getDataFactoryPublicApiSystem() {
+        if (dataFactoryPublicApiSystem != null) {
+            return dataFactoryPublicApiSystem;
+        }
+
+        dataFactoryPublicApiSystem = OpenshiftServiceProvider.getService(ocClient,
+                configuration.getDataFactoryPublicApiSystem());
+        return dataFactoryPublicApiSystem;
     }
 
     public Service getDataFactorySoap(String userName) {

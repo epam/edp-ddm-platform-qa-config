@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 public class RegistryConfiguration {
     private ServiceConfiguration dataFactory;
     private ServiceConfiguration dataFactoryExternalSystem;
+    private ServiceConfiguration dataFactoryPublicApiSystem;
     private ServiceConfiguration dataFactoryExternalPlatform;
     private ServiceConfiguration registryManagement;
     private ServiceConfiguration dataFactorySoap;
