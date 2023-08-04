@@ -53,6 +53,7 @@ public class RegistryConfiguration {
     private ServiceConfiguration citusRoles;
     private ServiceConfiguration processWebserviceGateway;
     private ServiceConfiguration redis;
+    private ServiceConfiguration wiremock;
     private CephBuckets ceph;
     private ServiceConfiguration notificationService;
 }

@@ -87,6 +87,7 @@ public final class RegistryConfig {
     private Service gerrit;
     private Service jenkins;
     private Service notificationService;
+    private Service wiremock;
     private Ceph fileDataCeph;
     private Ceph fileLowcodeCeph;
     private Ceph excerptCeph;
@@ -570,6 +571,17 @@ public final class RegistryConfig {
                 configuration.getFormSchemaProvider(), registryUserProvider.get(userName));
         return formSchemaProvider;
     }
+
+    public Service getWiremock() {
+        if (wiremock != null) {
+            return wiremock;
+        }
+
+        wiremock = OpenshiftServiceProvider.getService(ocClient,
+                configuration.getWiremock());
+        return wiremock;
+    }
+
 
     public Redis getRedis() {
         return getRedis(false);
