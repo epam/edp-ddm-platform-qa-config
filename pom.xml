@@ -6,7 +6,7 @@
 
     <groupId>platform.qa</groupId>
     <artifactId>platform-qa-config</artifactId>
-    <version>1.6.0.74</version>
+    <version>1.6.0.75</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,8 +20,8 @@
         <jackson.version>2.13.1</jackson.version>
         <guava.version>31.0.1-jre</guava.version>
 
-        <keycloak-qa-client.version>1.6.0.94</keycloak-qa-client.version>
-        <openshift-qa-client.version>1.6.0.94</openshift-qa-client.version>
+        <keycloak-qa-client.version>1.6.0.97</keycloak-qa-client.version>
+        <openshift-qa-client.version>1.6.0.97</openshift-qa-client.version>
         <global-qa-entities.version>1.6.0.10</global-qa-entities.version>
     </properties>
 
