@@ -30,6 +30,8 @@ import platform.qa.oc.OkdClient;
 import platform.qa.providers.impl.RegistryUserProvider;
 import platform.qa.utils.OpenshiftServiceProvider;
 
+import java.util.List;
+
 /**
  * Initiate and store Central services.
  * Central services defined in {@link RegistryConfig}
@@ -93,6 +95,7 @@ public final class RegistryConfig {
     private Ceph excerptCeph;
 
     private Redis redis;
+    private List<Redis> redisServices;
 
     public RegistryConfig(Configuration configuration,
                           String namespace,
@@ -597,6 +600,22 @@ public final class RegistryConfig {
                 ocClient.getCredentialsWithoutLogin(configuration.getRedis().getSecret())
         );
         return redis;
+    }
+
+    public List<Redis> getRedisList() {
+        return getRedisList(false);
+    }
+
+    public List<Redis> getRedisList(boolean isReinit) {
+        if (redis != null && !isReinit) {
+            return redisServices;
+        }
+
+        List<Redis> redisServices = OpenshiftServiceProvider
+                .getRedisServices(ocClient, configuration.getRedis(),
+                ocClient.getCredentialsWithoutLogin(configuration.getRedis().getSecret()));
+
+        return redisServices;
     }
 
     public Service getNotificationService() {

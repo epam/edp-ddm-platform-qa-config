@@ -18,6 +18,7 @@ package platform.qa.utils;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import io.fabric8.kubernetes.api.model.PodList;
 import jodd.util.Base64;
 import lombok.SneakyThrows;
 import platform.qa.configuration.MasterConfig;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 import com.sun.istack.Nullable;
 
 public final class OpenshiftServiceProvider {
@@ -214,6 +216,35 @@ public final class OpenshiftServiceProvider {
             return new Redis("http://localhost:" + port + "/", user.getPassword());
         }
         return null;
+    }
+
+    public static List<Redis> getRedisServices(OkdClient ocClient, ServiceConfiguration configuration, User user) {
+        List<Redis> redisServices = new ArrayList<>();
+        PodList podList = ocClient.getOsClient().pods().list();
+
+        List<String> sentinelNames = podList.getItems()
+                .stream()
+                .filter(pod -> Objects.nonNull(pod.getMetadata()))
+                .filter(pod -> Objects.nonNull(pod.getMetadata().getName()))
+                .filter(pod -> pod.getMetadata().getName().contains(configuration.getPodLabel()))
+                .map(pod -> pod.getMetadata().getName())
+                .collect(Collectors.toList());
+
+        for (String pod : sentinelNames) {
+            if (configuration.isPortForwarding()) {
+                try (SocketAnalyzer socketAnalyzer = new SocketAnalyzer()) {
+                    int port = socketAnalyzer.getAvailablePort();
+                    ocClient.getOsClient().pods().withName(pod).portForward(configuration.getDefaultPort(), port);
+
+                    Redis redis = new Redis("http://localhost:" + port + "/", user.getPassword());
+                    redisServices.add(redis);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        return redisServices;
     }
 
     private static boolean isRoutePresent(OkdClient okdClient, String route) {
